@@ -8,6 +8,7 @@ import urllib.error
 import urllib.request
 
 BASE = os.environ.get("MAILSCALE_API", "http://localhost:8080")
+API = f"{BASE.rstrip('/')}/api/v1"
 EMAIL = os.environ.get("MAILSCALE_EMAIL", "admin@mailscale.local")
 PASSWORD = os.environ.get("MAILSCALE_PASSWORD", "demo1234")
 
@@ -17,7 +18,22 @@ def request(method, path, body=None, token=None):
     if token:
         headers["Authorization"] = f"Bearer {token}"
     data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(BASE + path, data=data, headers=headers, method=method)
+    req = urllib.request.Request(API + path, data=data, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            raw = response.read().decode() or "{}"
+            return response.status, json.loads(raw)
+    except urllib.error.HTTPError as error:
+        return error.code, {"error": error.read().decode()}
+
+
+def raw_request(method, url, body=None, token=None):
+    """Calls an absolute URL, used for endpoints outside /api/v1."""
+    headers = {"Content-Type": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
         with urllib.request.urlopen(req, timeout=10) as response:
             raw = response.read().decode() or "{}"
@@ -29,7 +45,8 @@ def request(method, path, body=None, token=None):
 def main():
     failures = []
 
-    status, body = request("GET", "/actuator/health")
+    # /actuator is not under /api/v1.
+    status, body = raw_request("GET", f"{BASE}/actuator/health")
     print(f"health            : {status}")
     if status != 200:
         failures.append("health")

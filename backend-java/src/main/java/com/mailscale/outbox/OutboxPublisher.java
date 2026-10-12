@@ -96,10 +96,10 @@ public class OutboxPublisher {
     private String topicFor(String eventType) {
         if ("EMAIL_QUEUED".equals(eventType)
                 || "CAMPAIGN_EMAIL_QUEUED".equals(eventType)) {
-            return properties.getEmailCommandsTopic();
+            return properties.getEmailCommands();
         }
         if ("CAMPAIGN_DISPATCH".equals(eventType)) {
-            return properties.getCampaignCommandsTopic();
+            return properties.getCampaignCommands();
         }
         throw new IllegalArgumentException("Unknown event type: " + eventType);
     }
