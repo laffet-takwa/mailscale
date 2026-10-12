@@ -1,0 +1,163 @@
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-binding-errors: never
+
+spring:
+  application:
+    name: mailscale-api
+  jackson:
+    default-property-inclusion: non_null
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+  mail:
+    host: localhost
+    port: 1025
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,loggers
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  health:
+    redis:
+      enabled: false
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+mailscale:
+  jwt:
+    secret: ${MAILSCALE_JWT_SECRET:change-me-in-production-use-a-long-random-string}
+    expiry-seconds: ${MAILSCALE_JWT_EXPIRY_SECONDS:3600}
+  mail:
+    provider: ${MAIL_PROVIDER:mock}
+    smtp-host: ${MAIL_SMTP_HOST:localhost}
+    smtp-port: ${MAIL_SMTP_PORT:1025}
+    smtp-username: ${MAIL_SMTP_USERNAME:}
+    smtp-password: ${MAIL_SMTP_PASSWORD:}
+    from-default: ${MAIL_FROM_DEFAULT:noreply@mailscale.local}
+    max-delivery-attempts: ${MAIL_MAX_DELIVERY_ATTEMPTS:3}
+    rate-limit-per-minute: ${MAIL_RATE_LIMIT_PER_MINUTE:60}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    topic:
+      email-commands: ${KAFKA_TOPIC_EMAIL_COMMANDS:mailscale.emails.send}
+      email-commands-dlq: ${KAFKA_TOPIC_EMAIL_COMMANDS_DLQ:mailscale.emails.send.dlq}
+      delivery-events: ${KAFKA_TOPIC_DELIVERY_EVENTS:mailscale.delivery.events}
+      campaign-commands: ${KAFKA_TOPIC_CAMPAIGN_COMMANDS:mailscale.campaigns.dispatch}
+      campaign-commands-dlq: ${KAFKA_TOPIC_CAMPAIGN_COMMANDS_DLQ:mailscale.campaigns.dispatch.dlq}
+  outbox:
+    poll-interval-ms: 1000
+    batch-size: 100
+  ai:
+    provider: ${AI_PROVIDER:mock}
+    api-base-url: ${AI_API_BASE_URL:https://api.openai.com/v1}
+    api-key: ${AI_API_KEY:}
+    model: ${AI_MODEL:gpt-4o-mini}
+    timeout-seconds: ${AI_TIMEOUT_SECONDS:20}
+    max-tokens: ${AI_MAX_TOKENS:1024}
+  demo:
+    seed-enabled: ${MAILSCALE_DEMO_SEED_ENABLED:true}
+    admin-email: admin@mailscale.local
+    admin-password: ${MAILSCALE_DEMO_ADMIN_PASSWORD:demo1234}
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %level [%X{correlationId}] %logger{36} - %m%n"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:h2:mem:mailscale;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+  flyway:
+    locations: classpath:db/migration
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.LettuceConnectionConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/mailscale}
+    username: ${SPRING_DATASOURCE_USERNAME:mailscale}
+    password: ${SPRING_DATASOURCE_PASSWORD:mailscale-local}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:db/migration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mailscale}
+    username: ${SPRING_DATASOURCE_USERNAME:mailscale}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:db/migration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+---
+# SQL Server compatibility profile (ADR-0005). Not required for local development.
+spring:
+  config:
+    activate:
+      on-profile: sqlserver
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:sqlserver://localhost:1433;databaseName=mailscale;encrypt=false}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  flyway:
+    locations: classpath:db/migration,classpath:db/migration/sqlserver
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
