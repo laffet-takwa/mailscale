@@ -88,10 +88,31 @@ logging:
     console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %level [%X{correlationId}] %logger{36} - %m%n"
 
 ---
+# Default (no profile): PostgreSQL on localhost (docker compose up)
 spring:
   config:
     activate:
-      on-profile: local
+      on-profile: default
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mailscale
+    username: mailscale
+    password: mailscale-local
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+---
+# Test profile: in-memory H2 (PostgreSQL compatibility mode), no Redis/Kafka
+spring:
+  config:
+    activate:
+      on-profile: test
   datasource:
     url: jdbc:h2:mem:mailscale;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
@@ -102,11 +123,14 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.data.redis.LettuceConnectionConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+      - org.springframework.kafka.autoconfigure.KafkaAutoConfiguration
+      - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+      - org.springframework.boot.autoconfigure.mail.MailSenderValidatorAutoConfiguration
+  mail:
+    host: localhost
+    port: 1025
 
 ---
 spring:

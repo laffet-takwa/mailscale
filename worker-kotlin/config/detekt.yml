@@ -1,0 +1,60 @@
+build:
+  maxIssues: 20
+  excludeCorrectable: false
+
+complexity:
+  LongMethod:
+    active: true
+    threshold: 80
+  LongParameterList:
+    active: true
+    functionThreshold: 10
+    constructorThreshold: 12
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 20
+    thresholdInClasses: 20
+    thresholdInInterfaces: 20
+
+style:
+  MaxLineLength:
+    active: true
+    maxLineLength: 100
+  MagicNumber:
+    active: false
+  WildcardImport:
+    active: true
+    excludeImports:
+      - 'java.util.*'
+  ReturnCount:
+    active: true
+    max: 5
+  ThrowsCount:
+    active: true
+    max: 3
+  UnusedPrivateMember:
+    active: true
+
+naming:
+  FunctionNaming:
+    active: true
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*|`[^`]+`'
+  TopLevelPropertyNaming:
+    active: true
+    constantPattern: '[a-z][A-Za-z0-9]*'
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+  SwallowedException:
+    active: true
+
+performance:
+  SpreadOperator:
+    active: false
+
+potential-bugs:
+  UnsafeCallOnNullableType:
+    active: true
+  IgnoredReturnValue:
+    active: true
