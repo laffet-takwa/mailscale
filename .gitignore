@@ -11,6 +11,8 @@ node_modules/
 **/dist/
 **/target/
 **/out/
+.gradle/
+*.tsbuildinfo
 
 # IDE
 .idea/
