@@ -26,7 +26,7 @@ val jacksonVersion = "2.19.0"
 val flywayVersion = "11.5.0"
 val junitVersion = "5.12.2"
 val mockkVersion = "1.14.2"
-val testcontainersVersion = "1.20.4"
+val testcontainersVersion = "1.21.4"
 
 dependencies {
     // Kafka
