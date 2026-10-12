@@ -13,7 +13,7 @@ repositories {
     mavenCentral()
 }
 
-val kafkaVersion = "3.9.1"
+val kafkaVersion = "4.3.1"
 val kotlinxCoroutinesVersion = "1.10.2"
 val kotlinxSerializationVersion = "1.8.1"
 val logbackVersion = "1.5.18"
