@@ -16,7 +16,7 @@ repositories {
 val kafkaVersion = "3.9.1"
 val kotlinxCoroutinesVersion = "1.10.2"
 val kotlinxSerializationVersion = "1.8.1"
-val logbackVersion = "1.5.18"
+val logbackVersion = "1.6.5"
 val slf4jVersion = "2.0.17"
 val hikariVersion = "6.2.1"
 val postgresDriverVersion = "42.7.5"
