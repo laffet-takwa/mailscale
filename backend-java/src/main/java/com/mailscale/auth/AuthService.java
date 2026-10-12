@@ -1,6 +1,9 @@
 package com.mailscale.auth;
 
 import com.mailscale.common.ConflictException;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -82,11 +85,17 @@ public class AuthService {
                 member.getOrganization().getSlug(), member.getRole().name());
     }
 
-    public record RegisterRequest(String email, String password, String fullName,
-                                     String organizationName, String organizationSlug) {
+    public record RegisterRequest(
+            @NotBlank @Email String email,
+            @NotBlank @Size(min = 8, max = 72) String password,
+            @NotBlank @Size(max = 200) String fullName,
+            String organizationName,
+            String organizationSlug) {
     }
 
-    public record LoginRequest(String email, String password) {
+    public record LoginRequest(
+            @NotBlank String email,
+            @NotBlank String password) {
     }
 
     public record RegisterResponse(String token, Long userId, Long organizationId,

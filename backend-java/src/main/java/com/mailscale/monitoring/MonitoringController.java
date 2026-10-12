@@ -30,19 +30,22 @@ public class MonitoringController {
     @GetMapping("/status")
     @Operation(summary = "Simplified system status for the frontend")
     public ResponseEntity<Map<String, Object>> status() {
-        Object health = healthEndpoint.health();
+        // healthForPath("") returns null when no health group matches;
+        // fall back to the aggregate health endpoint instead of throwing.
+        HealthComponent overallHealth = healthEndpoint.healthForPath();
+        if (overallHealth == null) {
+            overallHealth = healthEndpoint.health();
+        }
         Map<String, Object> components = new LinkedHashMap<>();
-        if (health instanceof SystemHealth systemHealth) {
+        if (overallHealth instanceof SystemHealth systemHealth) {
             for (Map.Entry<String, HealthComponent> entry
                     : systemHealth.getComponents().entrySet()) {
                 components.put(entry.getKey(),
                         entry.getValue().getStatus().getCode());
             }
         }
-        String overall = healthEndpoint.healthForPath("")
-                .getStatus().getCode();
         return ResponseEntity.ok(Map.of(
-                "overall", overall,
+                "overall", overallHealth.getStatus().getCode(),
                 "components", components));
     }
 }
