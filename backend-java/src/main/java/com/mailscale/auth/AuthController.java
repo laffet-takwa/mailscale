@@ -71,6 +71,13 @@ public class AuthController {
                 expiresAt));
     }
 
+    @GetMapping("/api-keys")
+    @Operation(summary = "List API keys for the current organization")
+    public ResponseEntity<List<ApiKey>> listApiKeys() {
+        var org = OrganizationContext.requireOrganization();
+        return ResponseEntity.ok(apiKeyService.list(org));
+    }
+
     public record CreateApiKeyRequest(
             @NotBlank String name,
             List<String> scopes,

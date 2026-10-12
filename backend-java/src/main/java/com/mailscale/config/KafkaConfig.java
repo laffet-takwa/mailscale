@@ -25,6 +25,12 @@ public class KafkaConfig {
         Map<String, Object> props = new HashMap<>();
         props.put(org.apache.kafka.clients.admin.AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
                 bootstrapServers);
+        // Fail fast when the broker is unavailable (tests / local dev)
+        // instead of blocking startup for the 60s default.
+        props.put(org.apache.kafka.clients.admin.AdminClientConfig
+                .REQUEST_TIMEOUT_MS_CONFIG, 5_000);
+        props.put(org.apache.kafka.clients.admin.AdminClientConfig
+                .DEFAULT_API_TIMEOUT_MS_CONFIG, 5_000);
         return new KafkaAdmin(props);
     }
 

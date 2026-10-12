@@ -26,6 +26,14 @@ public interface EmailMessageRepository extends JpaRepository<EmailMessage, Long
                                                        Pageable pageable);
 
     @Query("select m from EmailMessage m where m.organization.id = :orgId"
+            + " and m.status = :status"
+            + " and (:type is null or m.messageType = :type)"
+            + " order by m.createdAt desc")
+    Page<EmailMessage> findByOrganizationIdAndStatus(
+            @Param("orgId") Long orgId, @Param("status") MessageStatus status,
+            @Param("type") MessageType type, Pageable pageable);
+
+    @Query("select m from EmailMessage m where m.organization.id = :orgId"
             + " and m.messageType = :type order by m.createdAt desc")
     Page<EmailMessage> findByOrganizationIdAndType(@Param("orgId") Long orgId,
                                                      @Param("type") MessageType type,

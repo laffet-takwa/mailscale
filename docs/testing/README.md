@@ -36,6 +36,22 @@
 - `TransactionalEmailIntegrationTest` - queue + outbox + idempotency record in
   one transaction, same-key replay, conflicting key reuse, missing key,
   suppressed recipient
+- `ApiIntegrationTest` (12 tests, MockMvc) - full HTTP layer:
+  - unauthenticated requests return **401** (not 403), including with an
+    invalid bearer token
+  - wrong-password login returns 401
+  - template creation + correlation-ID echo
+  - transactional email is accepted (202), idempotent replay returns the same
+    `messageId`, same key with a different payload returns **409**
+  - missing idempotency key returns 400; unknown template returns 404
+  - **tenant isolation**: a second organization cannot read another
+    organization's template (404) or contact (404), and its template list is
+    empty
+  - campaign validation reports problems for an empty audience and refuses
+    scheduling
+  - API-key authentication accepts a valid `X-API-Key` and rejects an
+    invalid one
+  - unknown routes return 404
 
 ### Kotlin worker
 

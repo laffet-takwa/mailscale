@@ -107,6 +107,29 @@ mailscale/
 â””â”€â”€ Makefile
 ```
 
+## Test status (measured, not claimed)
+
+Run on 2026-10-12 on Windows with Temurin JDK 21/25, Node.js 24:
+
+| Suite | Command | Result |
+| --- | --- | --- |
+| Java unit + integration | `./backend-java/mvnw -f backend-java/pom.xml test` | **60 passed**, 0 failed |
+| Kotlin worker | `./gradlew -p worker-kotlin test` | **24 passed**, 0 failed |
+| Frontend | `npm --prefix frontend test` | **28 passed**, 0 failed |
+| Frontend production build | `npm --prefix frontend run build` | succeeds |
+| Worker distribution | `./gradlew -p worker-kotlin installDist` | succeeds |
+
+112 tests total across the three modules. See [docs/testing/README.md](docs/testing/README.md)
+for what each test covers.
+
+Notes:
+- The Java suite runs against H2 in PostgreSQL-compatibility mode (profile `test`).
+  Testcontainers-backed PostgreSQL/Kafka tests are tagged `integration` and are
+  skipped unless `-Pintegration` is used, because the Docker daemon is not
+  available in every development environment.
+- These numbers are from the repository as committed on the date above; rerun
+  the commands to reproduce.
+
 ## Security
 
 - Passwords hashed with BCrypt; JWT access tokens (short-lived) with HS256/RS256 configuration

@@ -1,7 +1,7 @@
 package com.mailscale.email;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mailscale.auth.Organization;
 import com.mailscale.common.ConflictException;
 import com.mailscale.common.NotFoundException;
@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -141,6 +143,31 @@ public class TransactionalEmailService {
                 messageId, organization.getSlug(), template.getId());
         return response;
     }
+
+    @Transactional(readOnly = true)
+    public Page<EmailMessage> listPage(Organization organization,
+                                         Pageable pageable) {
+        return emailMessageRepository
+                .findByOrganizationId(organization.getId(), pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<EmailMessage> list(Organization organization,
+                                     MessageType messageType,
+                                     Pageable pageable) {
+        return emailMessageRepository
+                .findByOrganizationIdAndType(organization.getId(),
+                        messageType, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<EmailMessage> findByStatus(Organization organization,
+                                             MessageStatus status,
+                                             MessageType messageType,
+                                             Pageable pageable) {
+        return emailMessageRepository
+                .findByOrganizationIdAndStatus(organization.getId(),
+                        status, messageType, pageable);    }
 
     @Transactional(readOnly = true)
     public EmailMessage status(Organization organization, UUID messageId) {

@@ -1,6 +1,7 @@
 package com.mailscale.contact;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
@@ -84,7 +85,7 @@ public class Contact {
     }
 
     @JsonIgnore
-    @JsonIgnore    public com.mailscale.auth.Organization getOrganization() {
+    public com.mailscale.auth.Organization getOrganization() {
         return organization;
     }
 

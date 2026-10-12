@@ -18,7 +18,7 @@ import com.mailscale.template.TemplateService;
 import com.mailscale.template.TemplateVersion;
 import com.mailscale.template.TemplateVersionRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

@@ -298,11 +298,18 @@ class ApiIntegrationTest {
                 .readTree(segment.getResponse().getContentAsString())
                 .get("id")
                 .asLong();
+
+        // The new organization now has exactly one segment.
+        MvcResult listAfter = mockMvc.perform(get("/api/v1/segments")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn();
         org.junit.jupiter.api.Assertions.assertEquals(
-                objectMapper.readTree(
-                                segments.getResponse().getContentAsString())
-                        .size(),
-                1
+                1,
+                objectMapper
+                        .readTree(
+                                listAfter.getResponse().getContentAsString())
+                        .size()
         );
 
         MvcResult created = mockMvc.perform(post("/api/v1/campaigns")
@@ -334,6 +341,55 @@ class ApiIntegrationTest {
                         .get("problems")
                         .isEmpty()
         );
+    }
+
+    @Test
+    void emailMessageListIsScopedAndFilterable() throws Exception {
+        String token = register(
+                "list-api@example.com", "list-org-" + System.nanoTime()
+        );
+        long templateId = createTemplate(token, "list-template");
+
+        mockMvc.perform(post("/api/v1/emails")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("""
+                                {
+                                  "to": "listed@example.com",
+                                  "templateId": %d,
+                                  "idempotencyKey": "list-1"
+                                }
+                                """, templateId)))
+                .andExpect(status().isAccepted());
+
+        // Default listing is empty-filtered and scoped to this organization.
+        mockMvc.perform(get("/api/v1/emails")
+                        .header("Authorization", "Bearer " + token)
+                        .param("page", "0")
+                        .param("size", "50"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].toEmail")
+                        .value("listed@example.com"))
+                .andExpect(jsonPath("$.content[0].status")
+                        .value("QUEUED"));
+
+        // Status filter narrows the result.
+        mockMvc.perform(get("/api/v1/emails")
+                        .header("Authorization", "Bearer " + token)
+                        .param("status", "DELIVERED"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(0));
+
+        // A different organization sees nothing.
+        String other = register(
+                "list-other@example.com",
+                "list-other-org-" + System.nanoTime()
+        );
+        mockMvc.perform(get("/api/v1/emails")
+                        .header("Authorization", "Bearer " + other))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(0));
     }
 
     @Test
