@@ -1,6 +1,6 @@
 # Multi-stage build for the Spring Boot API.
 
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3.9-eclipse-temurin-26 AS build
 WORKDIR /workspace
 
 COPY backend-java/pom.xml backend-java/pom.xml
