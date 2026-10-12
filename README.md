@@ -1,4 +1,4 @@
-# MailScale
+﻿# MailScale
 
 MailScale is a multi-tenant email communication platform for sending transactional and marketing email.
 It is a portfolio-style engineering project demonstrating the competencies expected of a Software
@@ -69,7 +69,7 @@ Component boundaries, failure handling, and data flow are documented in
 ```bash
 cp .env.example .env
 docker compose up --build -d        # postgres, kafka, redis, mailpit, prometheus, grafana
-./mvnw -f backend-java/pom.xml spring-boot:run   # API on :8080
+./backend-java/mvnw -f backend-java/pom.xml spring-boot:run   # API on :8080
 ./gradlew -p worker-kotlin run                 # worker (consumes Kafka)
 npm --prefix frontend install && npm --prefix frontend run dev   # SPA on :5173
 ```
@@ -80,31 +80,31 @@ health at <http://localhost:8080/actuator/health>.
 
 ## Documentation index
 
-- [Architecture overview](docs/architecture/overview.md) — components, boundaries, data flow, failure handling
-- [ADRs](docs/adr/) — 8 architecture decision records
+- [Architecture overview](docs/architecture/overview.md) â€” components, boundaries, data flow, failure handling
+- [ADRs](docs/adr/) â€” 8 architecture decision records
 - [Database schema](docs/database/schema.md)
 - [Kafka topic design](docs/architecture/kafka.md)
 - [API reference](docs/api/openapi.md)
 - [Testing guide](docs/testing/README.md)
-- [Benchmarks](docs/benchmarks/README.md) — measured results only, with machine/config context
+- [Benchmarks](docs/benchmarks/README.md) â€” measured results only, with machine/config context
 - [Development guide](docs/DEVELOPMENT.md)
 
 ## Repository layout
 
 ```
 mailscale/
-├── frontend/              # React + TypeScript SPA (Vite)
-├── backend-java/          # Spring Boot API (Maven)
-├── worker-kotlin/         # Email processing worker (Gradle, Kotlin)
-├── infrastructure/        # docker, kafka, prometheus, grafana config
-├── load-tests/            # k6 scenarios
-├── e2e-tests/             # Playwright end-to-end tests
-├── docs/                  # architecture, adr, database, api, testing, benchmarks
-├── scripts/               # helper scripts
-├── .github/workflows/     # CI pipelines
-├── docker-compose.yml
-├── .env.example
-└── Makefile
+â”œâ”€â”€ frontend/              # React + TypeScript SPA (Vite)
+â”œâ”€â”€ backend-java/          # Spring Boot API (Maven)
+â”œâ”€â”€ worker-kotlin/         # Email processing worker (Gradle, Kotlin)
+â”œâ”€â”€ infrastructure/        # docker, kafka, prometheus, grafana config
+â”œâ”€â”€ load-tests/            # k6 scenarios
+â”œâ”€â”€ e2e-tests/             # Playwright end-to-end tests
+â”œâ”€â”€ docs/                  # architecture, adr, database, api, testing, benchmarks
+â”œâ”€â”€ scripts/               # helper scripts
+â”œâ”€â”€ .github/workflows/     # CI pipelines
+â”œâ”€â”€ docker-compose.yml
+â”œâ”€â”€ .env.example
+â””â”€â”€ Makefile
 ```
 
 ## Security
@@ -118,4 +118,4 @@ mailscale/
 
 ## License
 
-MIT — demonstration project. No real credentials or recipient datasets are committed.
+MIT â€” demonstration project. No real credentials or recipient datasets are committed.

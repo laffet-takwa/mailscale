@@ -1,4 +1,4 @@
-.POSIX:
+﻿.POSIX:
 
 # MailScale developer convenience targets.
 # All heavy lifting lives in the module build tools; these are shortcuts.
@@ -18,7 +18,7 @@ down: ## Stop infrastructure
 	docker compose down
 
 api: ## Run the Spring Boot API locally
-	./mvnw -f backend-java/pom.xml spring-boot:run
+	./backend-java/mvnw -f backend-java/pom.xml spring-boot:run
 
 worker: ## Run the Kotlin worker locally
 	./gradlew -p worker-kotlin run
@@ -33,10 +33,10 @@ frontend-build:
 	npm --prefix frontend run build
 
 test-backend: ## Run backend unit + H2-backed integration tests
-	./mvnw -f backend-java/pom.xml test
+	./backend-java/mvnw -f backend-java/pom.xml test
 
 test-backend-integration: ## Run Testcontainers-backed integration tests (requires Docker)
-	./mvnw -f backend-java/pom.xml verify -Pintegration
+	./backend-java/mvnw -f backend-java/pom.xml verify -Pintegration
 
 test-worker:
 	./gradlew -p worker-kotlin test
@@ -47,7 +47,7 @@ test-frontend:
 test-all: test-backend test-worker test-frontend ## Run all fast test suites
 
 lint: ## Run static analysis (Checkstyle + SpotBugs + Detekt + ESLint)
-	./mvnw -f backend-java/pom.xml checkstyle:check spotbugs:check
+	./backend-java/mvnw -f backend-java/pom.xml checkstyle:check spotbugs:check
 	./gradlew -p worker-kotlin detekt
 	npm --prefix frontend run lint
 

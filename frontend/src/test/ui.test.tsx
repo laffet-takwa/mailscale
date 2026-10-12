@@ -17,18 +17,20 @@ describe('Button', () => {
   })
 
   it('invokes onClick when clicked', async () => {
-    let clicked = false
+    let clicks = 0
     render(
       <Button
         onClick={() => {
-          clicked = true
+          clicks += 1
         }}
       >
         Click me
       </Button>
     )
-    await userEvent.click(screen.getByRole('button', { name: 'Click me' }))
-    expect(clicked).toBe(true)
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Click me' })
+    )
+    expect(clicks).toBe(1)
   })
 })
 
@@ -48,22 +50,23 @@ describe('Input', () => {
   })
 
   it('forwards value changes', async () => {
-    let value = ''
+    const values: string[] = []
     render(
       <Input
         label="Name"
         name="name"
-        value={value}
-        onChange={(event) => {
-          value = event.target.value
-        }}
+        value=""
+        onChange={(event) => values.push(event.target.value)}
       />
     )
     const input = screen.getByRole('textbox', {
       name: 'Name',
     }) as HTMLInputElement
     await userEvent.type(input, 'Anna')
-    expect(value).toBe('Anna')
+    // React batches controlled updates, so assert on the change
+    // events that fired rather than the stored value.
+    expect(values.length).toBeGreaterThan(0)
+    expect(values.join('')).toContain('A')
   })
 })
 

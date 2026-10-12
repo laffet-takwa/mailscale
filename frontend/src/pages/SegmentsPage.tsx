@@ -25,14 +25,14 @@ export default function SegmentsPage() {
     },
   })
 
-  const allSegments = data ?? []
   const segments = useMemo(() => {
+    const source = data ?? []
     const needle = search.trim().toLowerCase()
-    if (!needle) return allSegments
-    return allSegments.filter((segment) =>
+    if (!needle) return source
+    return source.filter((segment) =>
       segment.name.toLowerCase().includes(needle)
     )
-  }, [allSegments, search])
+  }, [data, search])
 
   const columns: Array<Column<Segment>> = [
     {

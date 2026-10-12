@@ -1,5 +1,6 @@
 package com.mailscale.email;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -115,6 +116,7 @@ public class EmailMessage {
         return id;
     }
 
+    @JsonIgnore
     public com.mailscale.auth.Organization getOrganization() {
         return organization;
     }
@@ -135,10 +137,12 @@ public class EmailMessage {
         return subject;
     }
 
+    @JsonIgnore
     public String getHtmlBody() {
         return htmlBody;
     }
 
+    @JsonIgnore
     public String getTextBody() {
         return textBody;
     }
@@ -147,14 +151,17 @@ public class EmailMessage {
         return status;
     }
 
+    @JsonIgnore
     public com.mailscale.template.Template getTemplate() {
         return template;
     }
 
+    @JsonIgnore
     public com.mailscale.contact.Contact getContact() {
         return contact;
     }
 
+    @JsonIgnore
     public com.mailscale.campaign.Campaign getCampaign() {
         return campaign;
     }

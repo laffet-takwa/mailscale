@@ -4,6 +4,8 @@ import com.mailscale.ai.AiContentGenerator;
 import com.mailscale.ai.GenerationRequest;
 import com.mailscale.ai.GeneratedContent;
 import com.mailscale.common.OrganizationContext;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,9 +29,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class AiController {
 
     private final AiContentGenerator generator;
+    private final AiMetrics metrics;
+    private final MeterRegistry meterRegistry;
 
-    public AiController(AiContentGenerator generator) {
+    public AiController(AiContentGenerator generator,
+                              AiMetrics metrics,
+                              MeterRegistry meterRegistry) {
         this.generator = generator;
+        this.metrics = metrics;
+        this.meterRegistry = meterRegistry;
     }
 
     @PostMapping("/generate")
@@ -37,14 +45,25 @@ public class AiController {
     public ResponseEntity<GeneratedContent> generate(
             @Valid @RequestBody GenerationRequest request) {
         var org = OrganizationContext.requireOrganization();
-        return ResponseEntity.ok(generator.generate(org, request));
+        metrics.recordStart();
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            GeneratedContent content = generator.generate(org, request);
+            return ResponseEntity.ok(content);
+        } catch (RuntimeException e) {
+            metrics.recordFailure();
+            throw e;
+        } finally {
+            sample.stop(meterRegistry
+                    .timer("mailscale_ai_request_duration_seconds"));
+        }
     }
 
     @PostMapping("/suggest-segments")
-    @Operation(summary = "Suggest audience segments from permitted contact attributes")
+    @Operation(summary = "Suggest audience segments "
+            + "from permitted contact attributes")
     public ResponseEntity<java.util.List<String>> suggestSegments(
             @RequestBody SegmentSuggestionRequest request) {
-        var org = OrganizationContext.requireOrganization();
         return ResponseEntity.ok(java.util.List.of(
                 "Active contacts with consent",
                 "Contacts engaged in the last 30 days",
@@ -52,7 +71,7 @@ public class AiController {
     }
 
     @PostMapping("/explain-rejection")
-    @Operation(summary = "Explain why a campaign might be rejected by validation")
+    @Operation(summary = "Explain why a campaign might be rejected")
     public ResponseEntity<String> explainRejection(
             @RequestBody ExplanationRequest request) {
         return ResponseEntity.ok(

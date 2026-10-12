@@ -81,6 +81,7 @@ kotlin {
 }
 
 application {
+    applicationName = "mailscale-worker"
     mainClass.set("com.mailscale.worker.MainKt")
 }
 

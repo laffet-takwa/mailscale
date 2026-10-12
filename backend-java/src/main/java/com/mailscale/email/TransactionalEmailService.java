@@ -1,6 +1,7 @@
 package com.mailscale.email;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectNode;
 import com.mailscale.auth.Organization;
 import com.mailscale.common.ConflictException;
 import com.mailscale.common.NotFoundException;
@@ -159,17 +160,19 @@ public class TransactionalEmailService {
                                     SendEmailRequest request, String subject,
                                     String htmlBody, String textBody) {
         try {
-            return objectMapper.writeValueAsString(Map.of(
-                    "messageId", messageId.toString(),
-                    "organizationId", organization.getId(),
-                    "toEmail", request.to(),
-                    "toName", request.toName(),
-                    "subject", subject,
-                    "htmlBody", htmlBody,
-                    "textBody", textBody,
-                    "templateId", request.templateId(),
-                    "idempotencyKey", request.idempotencyKey()
-            ));
+            ObjectNode node = objectMapper.createObjectNode();
+            node.put("messageId", messageId.toString());
+            node.put("organizationId", organization.getId());
+            node.put("toEmail", request.to());
+            node.put("toName", request.toName());
+            node.put("subject", subject);
+            node.put("htmlBody", htmlBody);
+            node.put("textBody", textBody);
+            if (request.templateId() != null) {
+                node.put("templateId", request.templateId());
+            }
+            node.put("idempotencyKey", request.idempotencyKey());
+            return objectMapper.writeValueAsString(node);
         } catch (Exception e) {
             throw new IllegalStateException("Cannot serialize outbox payload", e);
         }

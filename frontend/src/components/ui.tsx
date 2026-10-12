@@ -1,8 +1,9 @@
+import { forwardRef } from 'react'
 import type {
   ButtonHTMLAttributes,
+  InputHTMLAttributes,
   ReactNode,
   SelectHTMLAttributes,
-  InputHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react'
 import { cx } from '../lib/utils'
@@ -68,40 +69,43 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 /** Labelled input with error display and aria wiring. */
-export function Input({ label, error, className, id, ...rest }: InputProps) {
-  const inputId = id ?? rest.name
-  const errorId = error && inputId ? `${inputId}-error` : undefined
-  return (
-    <div className="space-y-1">
-      {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-charcoal-900"
-        >
-          {label}
-        </label>
-      )}
-      <input
-        id={inputId}
-        className={cx(
-          'block w-full rounded-md border-gray-300 shadow-sm',
-          'focus:border-navy-500 focus:ring-navy-500 sm:text-sm',
-          'disabled:cursor-not-allowed disabled:bg-gray-100',
-          error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
-          className
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  function Input({ label, error, className, id, ...rest }, ref) {
+    const inputId = id ?? rest.name
+    const errorId = error && inputId ? `${inputId}-error` : undefined
+    return (
+      <div className="space-y-1">
+        {label && (
+          <label
+            htmlFor={inputId}
+            className="block text-sm font-medium text-charcoal-900"
+          >
+            {label}
+          </label>
         )}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={errorId}
-        {...rest}
-      />
-      {error && (
-        <p id={errorId} className="text-sm text-red-600" role="alert">
-          {error}
-        </p>
-      )}
-    </div>
-  )
-}
+        <input
+          ref={ref}
+          id={inputId}
+          className={cx(
+            'block w-full rounded-md border-gray-300 shadow-sm',
+            'focus:border-navy-500 focus:ring-navy-500 sm:text-sm',
+            'disabled:cursor-not-allowed disabled:bg-gray-100',
+            error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
+            className
+          )}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={errorId}
+          {...rest}
+        />
+        {error && (
+          <p id={errorId} className="text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    )
+  }
+)
 
 export interface TextareaProps
   extends TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -110,45 +114,42 @@ export interface TextareaProps
 }
 
 /** Labelled textarea with error display. */
-export function Textarea({
-  label,
-  error,
-  className,
-  id,
-  ...rest
-}: TextareaProps) {
-  const fieldId = id ?? rest.name
-  const errorId = error && fieldId ? `${fieldId}-error` : undefined
-  return (
-    <div className="space-y-1">
-      {label && (
-        <label
-          htmlFor={fieldId}
-          className="block text-sm font-medium text-charcoal-900"
-        >
-          {label}
-        </label>
-      )}
-      <textarea
-        id={fieldId}
-        className={cx(
-          'block w-full rounded-md border-gray-300 shadow-sm',
-          'focus:border-navy-500 focus:ring-navy-500 sm:text-sm',
-          error && 'border-red-500',
-          className
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  function Textarea({ label, error, className, id, ...rest }, ref) {
+    const fieldId = id ?? rest.name
+    const errorId = error && fieldId ? `${fieldId}-error` : undefined
+    return (
+      <div className="space-y-1">
+        {label && (
+          <label
+            htmlFor={fieldId}
+            className="block text-sm font-medium text-charcoal-900"
+          >
+            {label}
+          </label>
         )}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={errorId}
-        {...rest}
-      />
-      {error && (
-        <p id={errorId} className="text-sm text-red-600" role="alert">
-          {error}
-        </p>
-      )}
-    </div>
-  )
-}
+        <textarea
+          ref={ref}
+          id={fieldId}
+          className={cx(
+            'block w-full rounded-md border-gray-300 shadow-sm',
+            'focus:border-navy-500 focus:ring-navy-500 sm:text-sm',
+            error && 'border-red-500',
+            className
+          )}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={errorId}
+          {...rest}
+        />
+        {error && (
+          <p id={errorId} className="text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    )
+  }
+)
 
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string
@@ -157,53 +158,49 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 /** Labelled select with option list. */
-export function Select({
-  label,
-  error,
-  options,
-  className,
-  id,
-  ...rest
-}: SelectProps) {
-  const fieldId = id ?? rest.name
-  const errorId = error && fieldId ? `${fieldId}-error` : undefined
-  return (
-    <div className="space-y-1">
-      {label && (
-        <label
-          htmlFor={fieldId}
-          className="block text-sm font-medium text-charcoal-900"
-        >
-          {label}
-        </label>
-      )}
-      <select
-        id={fieldId}
-        className={cx(
-          'block w-full rounded-md border-gray-300 shadow-sm',
-          'focus:border-navy-500 focus:ring-navy-500 sm:text-sm',
-          error && 'border-red-500',
-          className
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(
+  function Select({ label, error, options, className, id, ...rest }, ref) {
+    const fieldId = id ?? rest.name
+    const errorId = error && fieldId ? `${fieldId}-error` : undefined
+    return (
+      <div className="space-y-1">
+        {label && (
+          <label
+            htmlFor={fieldId}
+            className="block text-sm font-medium text-charcoal-900"
+          >
+            {label}
+          </label>
         )}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={errorId}
-        {...rest}
-      >
-        <option value="">Select...</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      {error && (
-        <p id={errorId} className="text-sm text-red-600" role="alert">
-          {error}
-        </p>
-      )}
-    </div>
-  )
-}
+        <select
+          ref={ref}
+          id={fieldId}
+          className={cx(
+            'block w-full rounded-md border-gray-300 shadow-sm',
+            'focus:border-navy-500 focus:ring-navy-500 sm:text-sm',
+            error && 'border-red-500',
+            className
+          )}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={errorId}
+          {...rest}
+        >
+          <option value="">Select...</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        {error && (
+          <p id={errorId} className="text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    )
+  }
+)
 
 export type BadgeTone =
   | 'neutral'

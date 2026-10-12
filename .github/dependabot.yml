@@ -1,0 +1,56 @@
+# Dependabot configuration for MailScale.
+#
+# Keeps all four ecosystems on maintained versions with small, reviewable
+# pull requests. Updates are capped so a single PR never mixes languages.
+
+version: 2
+
+updates:
+  - package-ecosystem: maven
+    directory: /backend-java
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'deps(java)'
+    groups:
+      spring-boot:
+        patterns:
+          - 'org.springframework*'
+          - 'org.springdoc*'
+          - 'io.jsonwebtoken*'
+
+  - package-ecosystem: gradle
+    directory: /worker-kotlin
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'deps(kotlin)'
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'deps(frontend)'
+
+  - package-ecosystem: npm
+    directory: /e2e-tests
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: 'deps(e2e)'
+
+  - package-ecosystem: docker
+    directory: /infrastructure/docker
+    schedule:
+      interval: weekly
+      day: tuesday
+    commit-message:
+      prefix: 'deps(docker)'

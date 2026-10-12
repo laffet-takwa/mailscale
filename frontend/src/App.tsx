@@ -10,6 +10,7 @@ import TemplatesPage from './pages/TemplatesPage'
 import TemplateEditorPage from './pages/TemplateEditorPage'
 import CampaignsPage from './pages/CampaignsPage'
 import CampaignDetailPage from './pages/CampaignDetailPage'
+import CampaignWizardPage from './pages/CampaignWizardPage'
 import EmailLogsPage from './pages/EmailLogsPage'
 import SuppressionPage from './pages/SuppressionPage'
 import AiAssistantPage from './pages/AiAssistantPage'
@@ -68,6 +69,7 @@ export default function App() {
         <Route path="templates" element={<TemplatesPage />} />
         <Route path="templates/:id" element={<TemplateEditorPage />} />
         <Route path="campaigns" element={<CampaignsPage />} />
+        <Route path="campaigns/new" element={<CampaignWizardPage />} />
         <Route path="campaigns/:id" element={<CampaignDetailPage />} />
         <Route path="emails" element={<EmailLogsPage />} />
         <Route path="suppressions" element={<SuppressionPage />} />

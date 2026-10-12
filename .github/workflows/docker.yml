@@ -1,0 +1,22 @@
+name: Docker image build
+
+on:
+  push:
+    branches: [main]
+    paths: ['infrastructure/**', 'docker-compose.yml']
+  pull_request:
+    paths: ['infrastructure/**', 'docker-compose.yml']
+
+jobs:
+  build:
+    name: Build API and worker images
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build API image
+        run: docker build -f infrastructure/docker/Dockerfile.api -t mailscale/api:ci .
+
+      - name: Build worker image
+        run: docker build -f infrastructure/docker/Dockerfile.worker -t mailscale/worker:ci .

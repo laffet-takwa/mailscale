@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -11,8 +11,7 @@ import {
 } from '../components/ui'
 import { DataTable } from '../components/DataTable'
 import type { Column } from '../components/DataTable'
-import { CampaignService, TemplateService } from '../api/campaigns'
-import { SegmentService } from '../api/contacts'
+import { CampaignService } from '../api/campaigns'
 import type { Campaign, CampaignStatus } from '../types'
 import { errorMessage, formatDate } from '../lib/utils'
 
@@ -27,7 +26,6 @@ const STATUS_TONES: Record<CampaignStatus, 'neutral' | 'success' | 'info' | 'war
 
 /** Campaign list with creation wizard and actions. */
 export default function CampaignsPage() {
-  const [showCreate, setShowCreate] = useState(false)
   const [search, setSearch] = useState('')
   const queryClient = useQueryClient()
 
@@ -50,14 +48,14 @@ export default function CampaignsPage() {
     },
   })
 
-  const allCampaigns = data ?? []
   const campaigns = useMemo(() => {
+    const source = data ?? []
     const needle = search.trim().toLowerCase()
-    if (!needle) return allCampaigns
-    return allCampaigns.filter((campaign) =>
+    if (!needle) return source
+    return source.filter((campaign) =>
       campaign.name.toLowerCase().includes(needle)
     )
-  }, [allCampaigns, search])
+  }, [data, search])
 
   const columns: Array<Column<Campaign>> = [
     {
@@ -133,21 +131,10 @@ export default function CampaignsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-charcoal-900">Campaigns</h1>
-        <Button onClick={() => setShowCreate((value) => !value)}>
-          {showCreate ? 'Close' : 'New campaign'}
-        </Button>
+        <Link to="/campaigns/new">
+          <Button>New campaign</Button>
+        </Link>
       </div>
-
-      {showCreate && (
-        <Card>
-          <CampaignWizard
-            onCreated={() => {
-              setShowCreate(false)
-              void queryClient.invalidateQueries({ queryKey: ['campaigns'] })
-            }}
-          />
-        </Card>
-      )}
 
       <Card>
         <div className="mb-4 max-w-sm">
@@ -169,128 +156,3 @@ export default function CampaignsPage() {
   )
 }
 
-function CampaignWizard({ onCreated }: { onCreated: () => void }) {
-  const [name, setName] = useState('')
-  const [segmentId, setSegmentId] = useState('')
-  const [templateId, setTemplateId] = useState('')
-  const [scheduledAt, setScheduledAt] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [validation, setValidation] = useState<string[] | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
-
-  const segments = useQuery({
-    queryKey: ['segments'],
-    queryFn: () => SegmentService.list(),
-  })
-  const templates = useQuery({
-    queryKey: ['templates'],
-    queryFn: () => TemplateService.list(),
-  })
-
-  const onSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setError(null)
-    setValidation(null)
-    if (!segmentId || !templateId) {
-      setError('Select a segment and a template')
-      return
-    }
-    setIsSaving(true)
-    try {
-      const campaign = await CampaignService.create({
-        name,
-        segmentId: Number(segmentId),
-        templateId: Number(templateId),
-      })
-      const result = await CampaignService.validate(campaign.id)
-      if (!result.valid) {
-        setValidation(result.problems)
-        return
-      }
-      if (scheduledAt) {
-        await CampaignService.schedule(campaign.id, new Date(scheduledAt).toISOString())
-      }
-      onCreated()
-    } catch (err) {
-      setError(errorMessage(err))
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      {error && (
-        <Alert tone="danger" title="Could not save campaign">
-          {error}
-        </Alert>
-      )}
-      {validation && validation.length > 0 && (
-        <Alert tone="warning" title="Campaign validation failed">
-          <ul className="list-disc pl-4">
-            {validation.map((problem) => (
-              <li key={problem}>{problem}</li>
-            ))}
-          </ul>
-        </Alert>
-      )}
-      <Input
-        label="Campaign name"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-        required
-      />
-      <div className="space-y-1">
-        <label
-          htmlFor="segment"
-          className="block text-sm font-medium text-charcoal-900"
-        >
-          Recipient segment
-        </label>
-        <select
-          id="segment"
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-navy-500 focus:ring-navy-500 sm:text-sm"
-          value={segmentId}
-          onChange={(event) => setSegmentId(event.target.value)}
-        >
-          <option value="">Select a segment...</option>
-          {(segments.data ?? []).map((segment) => (
-            <option key={segment.id} value={segment.id}>
-              {segment.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="space-y-1">
-        <label
-          htmlFor="template"
-          className="block text-sm font-medium text-charcoal-900"
-        >
-          Template
-        </label>
-        <select
-          id="template"
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-navy-500 focus:ring-navy-500 sm:text-sm"
-          value={templateId}
-          onChange={(event) => setTemplateId(event.target.value)}
-        >
-          <option value="">Select a template...</option>
-          {(templates.data ?? []).map((template) => (
-            <option key={template.id} value={template.id}>
-              {template.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <Input
-        label="Schedule (optional)"
-        type="datetime-local"
-        value={scheduledAt}
-        onChange={(event) => setScheduledAt(event.target.value)}
-      />
-      <Button type="submit" isLoading={isSaving}>
-        Create campaign
-      </Button>
-    </form>
-  )
-}

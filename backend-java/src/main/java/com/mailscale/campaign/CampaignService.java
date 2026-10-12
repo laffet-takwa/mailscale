@@ -18,6 +18,7 @@ import com.mailscale.template.TemplateService;
 import com.mailscale.template.TemplateVersion;
 import com.mailscale.template.TemplateVersionRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectNode;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -328,17 +329,22 @@ public class CampaignService {
                                     String subject, String htmlBody,
                                     String textBody) {
         try {
-            return objectMapper.writeValueAsString(Map.of(
-                    "messageId", messageId.toString(),
-                    "organizationId", org.getId(),
-                    "toEmail", contact.getEmail(),
-                    "toName", contact.getFirstName(),
-                    "subject", subject,
-                    "htmlBody", htmlBody,
-                    "textBody", textBody,
-                    "campaignId", String.valueOf(campaign.getId()),
-                    "contactId", String.valueOf(contact.getId())
-            ));
+            ObjectNode node = objectMapper.createObjectNode();
+            node.put("messageId", messageId.toString());
+            node.put("organizationId", org.getId());
+            node.put("toEmail", contact.getEmail());
+            node.put("toName", contact.getFirstName());
+            node.put("subject", subject);
+            node.put("htmlBody", htmlBody);
+            node.put("textBody", textBody);
+            if (campaign.getTemplate() != null) {
+                node.put("templateId", campaign.getTemplate().getId());
+            }
+            if (campaign.getId() != null) {
+                node.put("campaignId", campaign.getId());
+            }
+            node.put("contactId", contact.getId());
+            return objectMapper.writeValueAsString(node);
         } catch (Exception e) {
             throw new IllegalStateException(
                     "Cannot serialize outbox payload", e);

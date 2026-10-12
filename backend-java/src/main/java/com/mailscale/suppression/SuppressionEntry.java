@@ -1,5 +1,6 @@
 package com.mailscale.suppression;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -19,7 +20,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "suppression_entries", uniqueConstraints =
-        @UniqueConstraint(name = "uk_suppression_org_email", columnNames = {"organization_id", "email"}))
+        @UniqueConstraint(name = "uk_suppression_org_email",
+                columnNames = {"organization_id", "email"}))
 @EntityListeners(AuditingEntityListener.class)
 public class SuppressionEntry {
 
@@ -56,6 +58,7 @@ public class SuppressionEntry {
         return id;
     }
 
+    @JsonIgnore
     public com.mailscale.auth.Organization getOrganization() {
         return organization;
     }

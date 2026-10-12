@@ -1,5 +1,6 @@
 package com.mailscale.contact;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -18,7 +19,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "segments", uniqueConstraints =
-        @UniqueConstraint(name = "uk_segments_org_name", columnNames = {"organization_id", "name"}))
+        @UniqueConstraint(name = "uk_segments_org_name",
+                columnNames = {"organization_id", "name"}))
 @EntityListeners(AuditingEntityListener.class)
 public class Segment {
 
@@ -47,7 +49,8 @@ public class Segment {
     protected Segment() {
     }
 
-    public Segment(com.mailscale.auth.Organization organization, String name, String definition) {
+    public Segment(com.mailscale.auth.Organization organization,
+                   String name, String definition) {
         this.organization = organization;
         this.name = name;
         this.definition = definition;
@@ -57,6 +60,7 @@ public class Segment {
         return id;
     }
 
+    @JsonIgnore
     public com.mailscale.auth.Organization getOrganization() {
         return organization;
     }

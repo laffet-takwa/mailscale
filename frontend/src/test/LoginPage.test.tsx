@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -27,13 +27,16 @@ describe('LoginPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('validates a malformed email', async () => {
+  it('validates a malformed email on submit', async () => {
     renderLogin()
     await userEvent.type(
       screen.getByRole('textbox', { name: 'Email' }),
       'not-an-email'
     )
-    await userEvent.type(screen.getByLabelText('Password'), 'password123')
+    await userEvent.type(
+      screen.getByLabelText('Password'),
+      'password123'
+    )
     await userEvent.click(
       screen.getByRole('button', { name: 'Sign in' })
     )
@@ -42,7 +45,7 @@ describe('LoginPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('rejects a short password', async () => {
+  it('validates a short password on submit', async () => {
     renderLogin()
     await userEvent.type(
       screen.getByRole('textbox', { name: 'Email' }),
@@ -63,5 +66,20 @@ describe('LoginPage', () => {
     renderLogin()
     const link = screen.getByRole('link', { name: 'Register' })
     expect(link).toHaveAttribute('href', '/register')
+  })
+
+  it('does not submit while validation fails', async () => {
+    const consoleSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined)
+    renderLogin()
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Sign in' })
+    )
+    // Both fields are required, so both errors should appear.
+    expect(
+      await screen.findByText('Enter a valid email address')
+    ).toBeInTheDocument()
+    consoleSpy.mockRestore()
   })
 })

@@ -1,5 +1,6 @@
 package com.mailscale.contact;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -11,14 +12,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.Instant;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Instant;
-
 @Entity
 @Table(name = "contact_tags", uniqueConstraints =
-        @UniqueConstraint(name = "uk_contact_tags_org_name", columnNames = {"organization_id", "name"}))
+        @UniqueConstraint(name = "uk_contact_tags_org_name",
+                columnNames = {"organization_id", "name"}))
 @EntityListeners(AuditingEntityListener.class)
 public class ContactTag {
 
@@ -49,6 +50,7 @@ public class ContactTag {
         return id;
     }
 
+    @JsonIgnore
     public com.mailscale.auth.Organization getOrganization() {
         return organization;
     }

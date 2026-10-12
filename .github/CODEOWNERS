@@ -1,0 +1,10 @@
+# Code owners for the MailScale repository.
+# Review elsewhere is possible, but these owners are requested automatically.
+
+* @aishasalhi
+
+/backend-java/ @aishasalhi
+/worker-kotlin/ @aishasalhi
+/frontend/ @aishasalhi
+/infrastructure/ @aishasalhi
+/.github/ @aishasalhi

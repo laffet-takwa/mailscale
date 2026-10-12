@@ -139,17 +139,16 @@ export default function ContactsPage() {
     pendingIds
   )
 
-  const allContacts = data?.content ?? []
-
   // Client-side filtering for the current page: O(n) over the page
   // of at most 50 contacts; large lists are paginated server-side.
   const contacts = useMemo(() => {
+    const source = data?.content ?? []
     const needle = search.trim().toLowerCase()
-    if (!needle) return allContacts
-    return allContacts.filter((contact) =>
+    if (!needle) return source
+    return source.filter((contact) =>
       contact.email.toLowerCase().includes(needle)
     )
-  }, [allContacts, search])
+  }, [data, search])
 
   if (isLoading) {
     return <Spinner label="Loading contacts..." />

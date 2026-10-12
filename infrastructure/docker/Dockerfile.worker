@@ -1,0 +1,23 @@
+# Build stage: Kotlin worker with Gradle.
+FROM eclipse-temurin:21-jdk-jammy AS build
+WORKDIR /workspace
+
+# Copy only what is needed to resolve dependencies (layer caching).
+COPY worker-kotlin/build.gradle.kts worker-kotlin/settings.gradle.kts worker-kotlin/
+WORKDIR /workspace/worker-kotlin
+RUN ./gradlew --no-daemon dependencies || true
+
+COPY worker-kotlin/src src
+RUN ./gradlew --no-daemon clean installDist
+
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+RUN useradd -r -m mailscale
+USER mailscale
+
+COPY --from=build /workspace/worker-kotlin/build/install/mailscale-worker /app/
+
+EXPOSE 8081
+
+ENTRYPOINT ["/app/bin/mailscale-worker"]

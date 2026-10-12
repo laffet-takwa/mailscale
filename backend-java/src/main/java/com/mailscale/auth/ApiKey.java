@@ -1,5 +1,6 @@
 package com.mailscale.auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -55,8 +56,8 @@ public class ApiKey {
     protected ApiKey() {
     }
 
-    public ApiKey(Organization organization, String name, String keyHash, String keyPrefix,
-                  String scopes, Instant expiresAt) {
+    public ApiKey(Organization organization, String name, String keyHash,
+                  String keyPrefix, String scopes, Instant expiresAt) {
         this.organization = organization;
         this.name = name;
         this.keyHash = keyHash;
@@ -69,6 +70,7 @@ public class ApiKey {
         return id;
     }
 
+    @JsonIgnore
     public Organization getOrganization() {
         return organization;
     }
@@ -77,6 +79,7 @@ public class ApiKey {
         return name;
     }
 
+    @JsonIgnore
     public String getKeyHash() {
         return keyHash;
     }
@@ -114,6 +117,7 @@ public class ApiKey {
     }
 
     public boolean isActive(Instant now) {
-        return revokedAt == null && (expiresAt == null || expiresAt.isAfter(now));
+        return revokedAt == null
+                && (expiresAt == null || expiresAt.isAfter(now));
     }
 }

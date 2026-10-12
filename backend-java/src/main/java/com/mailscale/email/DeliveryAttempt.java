@@ -1,5 +1,6 @@
 package com.mailscale.email;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -71,7 +72,7 @@ public class DeliveryAttempt {
         return id;
     }
 
-    public EmailMessage getMessage() {
+    @JsonIgnore    public EmailMessage getMessage() {
         return message;
     }
 

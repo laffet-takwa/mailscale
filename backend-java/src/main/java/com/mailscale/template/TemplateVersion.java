@@ -1,5 +1,6 @@
 package com.mailscale.template;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -65,6 +66,7 @@ public class TemplateVersion {
         return id;
     }
 
+    @JsonIgnore
     public Template getTemplate() {
         return template;
     }

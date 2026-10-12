@@ -1,5 +1,6 @@
 package com.mailscale.campaign;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -72,7 +73,8 @@ public class Campaign {
     }
 
     public Campaign(com.mailscale.auth.Organization organization, String name,
-                    com.mailscale.contact.Segment segment, com.mailscale.template.Template template) {
+                    com.mailscale.contact.Segment segment,
+                    com.mailscale.template.Template template) {
         this.organization = organization;
         this.name = name;
         this.segment = segment;
@@ -83,6 +85,7 @@ public class Campaign {
         return id;
     }
 
+    @JsonIgnore
     public com.mailscale.auth.Organization getOrganization() {
         return organization;
     }
@@ -95,10 +98,12 @@ public class Campaign {
         return status;
     }
 
+    @JsonIgnore
     public com.mailscale.contact.Segment getSegment() {
         return segment;
     }
 
+    @JsonIgnore
     public com.mailscale.template.Template getTemplate() {
         return template;
     }
@@ -151,28 +156,33 @@ public class Campaign {
     }
 
     public void cancel(Instant now) {
-        if (status == CampaignStatus.PROCESSING || status == CampaignStatus.SCHEDULED) {
+        if (status == CampaignStatus.PROCESSING
+                || status == CampaignStatus.SCHEDULED) {
             this.completedAt = now;
             this.status = CampaignStatus.CANCELLED;
             return;
         }
-        throw new IllegalStateException("Campaign cannot be cancelled from status " + status);
+        throw new IllegalStateException(
+                "Campaign cannot be cancelled from status " + status);
     }
 
     public void fail(String reason) {
-        if (status == CampaignStatus.PROCESSING || status == CampaignStatus.SCHEDULED) {
+        if (status == CampaignStatus.PROCESSING
+                || status == CampaignStatus.SCHEDULED) {
             this.failureReason = reason;
             this.completedAt = Instant.now();
             this.status = CampaignStatus.FAILED;
             return;
         }
-        throw new IllegalStateException("Campaign cannot fail from status " + status);
+        throw new IllegalStateException(
+                "Campaign cannot fail from status " + status);
     }
 
     private void assertTransition(CampaignStatus required) {
         if (status != required) {
             throw new IllegalStateException(
-                    "Expected campaign status " + required + " but was " + status);
+                    "Expected campaign status " + required
+                            + " but was " + status);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.mailscale.auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -57,11 +58,11 @@ public class OrganizationMember {
         return id;
     }
 
-    public Organization getOrganization() {
+    @JsonIgnore    public Organization getOrganization() {
         return organization;
     }
 
-    public User getUser() {
+    @JsonIgnore    public User getUser() {
         return user;
     }
 

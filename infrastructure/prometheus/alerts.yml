@@ -1,0 +1,100 @@
+groups:
+  - name: mailscale-availability
+    rules:
+      - alert: MailscaleApiDown
+        expr: up{job="mailscale-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: MailScale API is unreachable
+          description: Prometheus has not been able to scrape the API for 2 minutes.
+
+      - alert: MailscaleWorkerDown
+        expr: up{job="mailscale-worker"} == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: MailScale worker is unreachable
+          description: The Kotlin worker metrics endpoint has been down for 3 minutes.
+
+  - name: mailscale-throughput
+    rules:
+      - alert: DeliveryFailureRateHigh
+        expr: |
+          (
+            sum(rate(mailscale_worker_messages_failed_total[5m]))
+            / clamp_min(sum(rate(mailscale_worker_messages_consumed_total[5m])), 0.1)
+          ) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Delivery failure rate above 5%
+          description: More than 5% of consumed messages are failing delivery.
+
+      - alert: ConsumerLagHigh
+        expr: mailscale_worker_consumer_lag > 1000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Kafka consumer lag is above 1000 messages
+          description: The worker cannot keep up with the current ingress rate.
+
+      - alert: DeadLetterGrowth
+        expr: increase(mailscale_worker_messages_deadlettered_total[15m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Messages are being dead-lettered
+          description: More than 10 messages have been routed to the DLQ in 15 minutes.
+
+      - alert: EmailQueueBacklog
+        expr: sum(rate(mailscale_worker_messages_consumed_total[5m])) < 0.1
+          and sum(mailscale_worker_consumer_lag) > 50
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Worker throughput is near zero with a backlog
+          description: The worker has a backlog but is processing almost nothing.
+
+  - name: mailscale-api-health
+    rules:
+      - alert: HttpServerErrorRateHigh
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m]))
+            / clamp_min(sum(rate(http_server_requests_seconds_count[5m])), 0.1)
+          ) > 0.02
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: HTTP 5xx rate above 2%
+          description: The API is returning server errors for more than 2% of requests.
+
+      - alert: HttpLatencyP99High
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum by (le) (rate(http_server_requests_seconds_bucket[10m]))
+          ) > 1.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: HTTP p99 latency above 1.5s
+          description: API p99 latency exceeds the 1.5s objective.
+
+      - alert: AiRequestFailures
+        expr: increase(mailscale_ai_requests_failed_total[15m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: AI generation failures detected
+          description: More than 5 AI generation requests failed in 15 minutes.

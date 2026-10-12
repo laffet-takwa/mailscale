@@ -1,0 +1,28 @@
+# Multi-stage build for the Spring Boot API.
+
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /workspace
+
+COPY backend-java/pom.xml backend-java/pom.xml
+COPY backend-java/checkstyle.xml backend-java/checkstyle.xml
+
+RUN mvn -q -f backend-java/pom.xml dependency:go-offline -DskipTests
+
+COPY backend-java/src backend-java/src
+
+RUN mvn -q -f backend-java/pom.xml -DskipTests -Dcheckstyle.skip=true package
+
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+RUN addgroup -S mailscale && adduser -S mailscale -G mailscale
+USER mailscale
+
+COPY --from=build /workspace/backend-java/target/mailscale-api-*.jar app.jar
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
+  CMD wget -qO- http://localhost:8080/actuator/health/liveness || exit 1
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
